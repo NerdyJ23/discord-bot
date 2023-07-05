@@ -29,26 +29,34 @@ client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
 
-client.on(Discord.Events.InteractionCreate, interaction => {
+client.on(Discord.Events.InteractionCreate, async interaction => {
 	if (interaction.isChatInputCommand()) {
-		console.log(interaction);
 		if (interaction.commandName === "reload") {
-			console.log("reloading");
+			console.log('reloading commands');
+			await interaction.deferReply({ephemeral: true});
+			await load(client);
+			await interaction.editReply({ content: 'commands reloaded' });
 			load(client);
 		}
 
 		if (client.commands.get(interaction.commandName)) {
-			client.commands.get(interaction.commandName).execute(interaction);
+			client.commands.get(interaction.commandName).execute(interaction, client.commands);
 		}
 	}
 });
 
 await load(client);
+
 //make sure this line is the last line
 client.login(process.env.CLIENT_TOKEN); //login bot using token
 
 async function load(client) {
-	client.commands = await functions.init(client);
-	await deployFunctions.init(client.commands);
+	try {
+		client.commands = new Discord.Collection();
+		client.commands = await functions.init(client);
+		await deployFunctions.init(client.commands);
+	} catch(e) {
+		console.error(e);
+	}
 }
 
