@@ -6,9 +6,10 @@ const data = new SlashCommandBuilder()
 	.setDefaultMemberPermissions(PermissionFlagsBits.Administrator);
 
 const conf = {
-	enabled: true
+	enabled: false
 };
 export {
 	data,
-	conf
+	conf,
+	execute
 }
